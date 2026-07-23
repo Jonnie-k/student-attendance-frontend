@@ -32,12 +32,34 @@ def home(request):
     return render(request, "frontend/home.html", context)
 
 def students(request):
-    response = requests.get(f"{BASE_API}/students/")
-    data = response.json()
-    return render(request, "frontend/students.html", {"students": data})
+    search = request.GET.get("search", "")
 
+    response = requests.get(f"{BASE_API}/students/")
+    students = response.json()
+
+    if isinstance(students, dict):
+        students = students.get("results", students)
+
+    if search:
+        search = search.lower()
+        students = [
+            student for student in students
+            if search in student["user"]["username"].lower()
+            or search in student["admission_number"].lower()
+        ]
+
+    return render(
+        request,
+        "frontend/students.html",
+        {
+            "students": students,
+            "search": search,
+        },
+    )
 
 def teachers(request):
+    search = request.GET.get("search", "")
+
     response = requests.get(f"{BASE_API}/teachers/")
     teachers = response.json()
 
