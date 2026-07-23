@@ -16,17 +16,38 @@ def students(request):
 
 def teachers(request):
     response = requests.get(f"{BASE_API}/teachers/")
-    data = response.json()
-    return render(request, "frontend/teachers.html", {"teachers": data})
+    teachers = response.json()
 
+    if isinstance(teachers, dict) and "results" in teachers:
+        teachers = teachers["results"]
 
+    return render(
+        request,
+        "frontend/teachers.html",
+        {"teachers": teachers},
+    )
 def courses(request):
     response = requests.get(f"{BASE_API}/courses/")
-    data = response.json()
-    return render(request, "frontend/courses.html", {"courses": data})
+    courses = response.json()
 
+    if isinstance(courses, dict) and "results" in courses:
+        courses = courses["results"]
+
+    return render(
+        request,
+        "frontend/courses.html",
+        {"courses": courses},
+    )
 
 def attendance(request):
     response = requests.get(f"{BASE_API}/attendance/")
-    data = response.json()
-    return render(request, "frontend/attendance.html", {"attendance": data})
+    attendance_records = response.json()
+
+    if isinstance(attendance_records, dict) and "results" in attendance_records:
+        attendance_records = attendance_records["results"]
+
+    return render(
+        request,
+        "frontend/attendance.html",
+        {"attendance_records": attendance_records},
+    )
