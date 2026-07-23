@@ -210,6 +210,87 @@ def courses(request):
             "search": search,
         },
     )
+def add_teacher(request):
+    if request.method == "POST":
+        data = {
+            "user": request.POST.get("user"),
+            "employee_number": request.POST.get("employee_number"),
+            "department": request.POST.get("department"),
+        }
+
+        response = requests.post(f"{BASE_API}/teachers/", json=data)
+
+        if response.status_code == 201:
+            return redirect("teachers")
+
+        return render(
+            request,
+            "frontend/teacher_form.html",
+            {"error": response.json()},
+        )
+
+    return render(request, "frontend/teacher_form.html")
+def edit_teacher(request, teacher_id):
+    url = f"{BASE_API}/teachers/{teacher_id}/"
+
+    if request.method == "POST":
+        data = {
+            "user": request.POST.get("user"),
+            "employee_number": request.POST.get("employee_number"),
+            "department": request.POST.get("department"),
+        }
+
+        response = requests.put(url, json=data)
+
+        if response.status_code == 200:
+            return redirect("teachers")
+
+        return render(
+            request,
+            "frontend/teacher_form.html",
+            {
+                "teacher": data,
+                "error": response.json(),
+            },
+        )
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        teacher = response.json()
+
+        return render(
+            request,
+            "frontend/teacher_form.html",
+            {
+                "teacher": teacher,
+            },
+        )
+
+    return redirect("teachers")
+
+def delete_teacher(request, teacher_id):
+    url = f"{BASE_API}/teachers/{teacher_id}/"
+
+    if request.method == "POST":
+        requests.delete(url)
+        return redirect("teachers")
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        teacher = response.json()
+
+        return render(
+            request,
+            "frontend/teacher_delete.html",
+            {
+                "teacher": teacher,
+            },
+        )
+
+    return redirect("teachers")
+
 def attendance(request):
     search = request.GET.get("search", "")
 

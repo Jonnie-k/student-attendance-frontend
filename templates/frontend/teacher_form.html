@@ -1,0 +1,65 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}
+{% if teacher %}Edit Teacher{% else %}Add Teacher{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">
+    {% if teacher %}Edit Teacher{% else %}Add Teacher{% endif %}
+</h2>
+
+{% if error %}
+<div class="alert alert-danger">
+    {{ error }}
+</div>
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label class="form-label">User ID</label>
+        <input
+            type="number"
+            name="user"
+            class="form-control"
+            value="{{ teacher.user }}"
+            required
+        >
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Employee Number</label>
+        <input
+            type="text"
+            name="employee_number"
+            class="form-control"
+            value="{{ teacher.employee_number }}"
+            required
+        >
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Department</label>
+        <input
+            type="text"
+            name="department"
+            class="form-control"
+            value="{{ teacher.department }}"
+            required
+        >
+    </div>
+
+    <button class="btn btn-success">
+        Save Teacher
+    </button>
+
+    <a href="{% url 'teachers' %}" class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}
