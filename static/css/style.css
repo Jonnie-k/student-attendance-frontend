@@ -1,15 +1,31 @@
-body {
-    background-color: #f8f9fa;
+body{
+    background:#f5f7fa;
 }
 
-.navbar-brand {
-    font-weight: bold;
+.sidebar{
+    min-height:100vh;
 }
 
-.card {
-    border-radius: 12px;
+.sidebar .nav-link{
+    padding:12px 20px;
+    font-size:16px;
 }
 
-table {
-    background: white;
+.sidebar .nav-link:hover{
+    background:#198754;
+    border-radius:6px;
+}
+
+.card{
+    border:none;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.table{
+    background:white;
+}
+
+h1,h2,h3,h4{
+    font-weight:700;
 }
