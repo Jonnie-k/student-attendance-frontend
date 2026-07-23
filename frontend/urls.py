@@ -10,4 +10,9 @@ path(
     views.edit_student,
     name="edit_student",
 ),
+path(
+    "students/delete/<int:student_id>/",
+    views.delete_student,
+    name="delete_student",
+),
 ]

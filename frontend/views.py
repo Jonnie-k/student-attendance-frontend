@@ -130,6 +130,31 @@ def edit_student(request, student_id):
         )
 
     return redirect("students")
+def delete_student(request, student_id):
+    url = f"{BASE_API}/students/{student_id}/"
+
+    if request.method == "POST":
+        response = requests.delete(url)
+
+        if response.status_code == 204:
+            return redirect("students")
+
+        return redirect("students")
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        student = response.json()
+
+        return render(
+            request,
+            "frontend/student_delete.html",
+            {
+                "student": student,
+            },
+        )
+
+    return redirect("students")
 
 def teachers(request):
     search = request.GET.get("search", "")

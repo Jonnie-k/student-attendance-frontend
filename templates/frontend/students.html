@@ -50,6 +50,9 @@
                 <a href="{% url 'edit_student' student.id %}" class="btn btn-warning btn-sm">
                     Edit
                 </a>
+                <a href="{% url 'delete_student' student.id %}" class="btn btn-danger btn-sm">
+                    Delete
+                </a>
             </td>
         </tr>
     {% empty %}
