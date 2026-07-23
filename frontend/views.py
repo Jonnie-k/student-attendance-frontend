@@ -44,8 +44,11 @@ def students(request):
         search = search.lower()
         students = [
             student for student in students
-            if search in student["user"]["username"].lower()
-            or search in student["admission_number"].lower()
+         if (
+    search in student["username"].lower()
+    or search in student["full_name"].lower()
+    or search in student["admission_number"].lower()
+)
         ]
 
     return render(
@@ -63,36 +66,76 @@ def teachers(request):
     response = requests.get(f"{BASE_API}/teachers/")
     teachers = response.json()
 
-    if isinstance(teachers, dict) and "results" in teachers:
-        teachers = teachers["results"]
+    if isinstance(teachers, dict):
+        teachers = teachers.get("results", teachers)
+
+    if search:
+        search = search.lower()
+        teachers = [
+            teacher for teacher in teachers
+          if (
+    search in teacher["username"].lower()
+    or search in teacher["full_name"].lower()
+    or search in teacher["employee_number"].lower()
+    or search in teacher["department"].lower()
+)
+        ]
 
     return render(
         request,
         "frontend/teachers.html",
-        {"teachers": teachers},
+        {
+            "teachers": teachers,
+            "search": search,
+        },
     )
 def courses(request):
+    search = request.GET.get("search", "")
+
     response = requests.get(f"{BASE_API}/courses/")
     courses = response.json()
 
-    if isinstance(courses, dict) and "results" in courses:
-        courses = courses["results"]
+    if isinstance(courses, dict):
+        courses = courses.get("results", courses)
+
+    if search:
+        search = search.lower()
+        courses = [
+            course for course in courses
+            if search in course["course_name"].lower()
+            or search in course["course_code"].lower()
+        ]
 
     return render(
         request,
         "frontend/courses.html",
-        {"courses": courses},
+        {
+            "courses": courses,
+            "search": search,
+        },
     )
-
 def attendance(request):
-    response = requests.get(f"{BASE_API}/attendance/")
-    attendance_records = response.json()
+    search = request.GET.get("search", "")
 
-    if isinstance(attendance_records, dict) and "results" in attendance_records:
-        attendance_records = attendance_records["results"]
+    response = requests.get(f"{BASE_API}/attendance/")
+    attendance = response.json()
+
+    if isinstance(attendance, dict):
+        attendance = attendance.get("results", attendance)
+
+    if search:
+        search = search.lower()
+        attendance = [
+            record for record in attendance
+            if search in record["student"]["user"]["username"].lower()
+            or search in record["course"]["course_name"].lower()
+        ]
 
     return render(
         request,
         "frontend/attendance.html",
-        {"attendance_records": attendance_records},
+        {
+            "attendance": attendance,
+            "search": search,
+        },
     )
