@@ -10,14 +10,23 @@ def home(request):
 
 def students(request):
     response = requests.get(f"{BASE_API}/students/")
+    data = response.json()
+    return render(request, "frontend/students.html", {"students": data})
 
-    if response.status_code == 200:
-        students = response.json()
-    else:
-        students = []
 
-    return render(
-        request,
-        "frontend/students.html",
-        {"students": students},
-    )
+def teachers(request):
+    response = requests.get(f"{BASE_API}/teachers/")
+    data = response.json()
+    return render(request, "frontend/teachers.html", {"teachers": data})
+
+
+def courses(request):
+    response = requests.get(f"{BASE_API}/courses/")
+    data = response.json()
+    return render(request, "frontend/courses.html", {"courses": data})
+
+
+def attendance(request):
+    response = requests.get(f"{BASE_API}/attendance/")
+    data = response.json()
+    return render(request, "frontend/attendance.html", {"attendance": data})
