@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 
 BASE_API = "http://127.0.0.1:8000/api"
 
+
 def home(request):
     students = requests.get(f"{BASE_API}/students/").json()
     teachers = requests.get(f"{BASE_API}/teachers/").json()
@@ -30,6 +31,11 @@ def home(request):
 
     return render(request, "frontend/home.html", context)
 
+
+# ==========================
+# STUDENTS
+# ==========================
+
 def students(request):
     search = request.GET.get("search", "")
 
@@ -41,13 +47,14 @@ def students(request):
 
     if search:
         search = search.lower()
+
         students = [
             student for student in students
-         if (
-    search in student["username"].lower()
-    or search in student["full_name"].lower()
-    or search in student["admission_number"].lower()
-)
+            if (
+                search in student["username"].lower()
+                or search in student["full_name"].lower()
+                or search in student["admission_number"].lower()
+            )
         ]
 
     return render(
@@ -58,6 +65,8 @@ def students(request):
             "search": search,
         },
     )
+
+
 def add_student(request):
     if request.method == "POST":
         data = {
@@ -71,7 +80,7 @@ def add_student(request):
 
         response = requests.post(
             f"{BASE_API}/students/",
-            json=data
+            json=data,
         )
 
         if response.status_code == 201:
@@ -81,14 +90,13 @@ def add_student(request):
             request,
             "frontend/student_form.html",
             {
-                "error": response.json()
+                "error": response.json(),
             },
         )
 
-    return render(
-        request,
-        "frontend/student_form.html",
-    )
+    return render(request, "frontend/student_form.html")
+
+
 def edit_student(request, student_id):
     url = f"{BASE_API}/students/{student_id}/"
 
@@ -130,15 +138,13 @@ def edit_student(request, student_id):
         )
 
     return redirect("students")
+
+
 def delete_student(request, student_id):
     url = f"{BASE_API}/students/{student_id}/"
 
     if request.method == "POST":
-        response = requests.delete(url)
-
-        if response.status_code == 204:
-            return redirect("students")
-
+        requests.delete(url)
         return redirect("students")
 
     response = requests.get(url)
@@ -156,6 +162,11 @@ def delete_student(request, student_id):
 
     return redirect("students")
 
+
+# ==========================
+# TEACHERS
+# ==========================
+
 def teachers(request):
     search = request.GET.get("search", "")
 
@@ -167,14 +178,15 @@ def teachers(request):
 
     if search:
         search = search.lower()
+
         teachers = [
             teacher for teacher in teachers
-          if (
-    search in teacher["username"].lower()
-    or search in teacher["full_name"].lower()
-    or search in teacher["employee_number"].lower()
-    or search in teacher["department"].lower()
-)
+            if (
+                search in teacher["username"].lower()
+                or search in teacher["full_name"].lower()
+                or search in teacher["employee_number"].lower()
+                or search in teacher["department"].lower()
+            )
         ]
 
     return render(
@@ -185,31 +197,8 @@ def teachers(request):
             "search": search,
         },
     )
-def courses(request):
-    search = request.GET.get("search", "")
 
-    response = requests.get(f"{BASE_API}/courses/")
-    courses = response.json()
 
-    if isinstance(courses, dict):
-        courses = courses.get("results", courses)
-
-    if search:
-        search = search.lower()
-        courses = [
-            course for course in courses
-            if search in course["course_name"].lower()
-            or search in course["course_code"].lower()
-        ]
-
-    return render(
-        request,
-        "frontend/courses.html",
-        {
-            "courses": courses,
-            "search": search,
-        },
-    )
 def add_teacher(request):
     if request.method == "POST":
         data = {
@@ -218,7 +207,10 @@ def add_teacher(request):
             "department": request.POST.get("department"),
         }
 
-        response = requests.post(f"{BASE_API}/teachers/", json=data)
+        response = requests.post(
+            f"{BASE_API}/teachers/",
+            json=data,
+        )
 
         if response.status_code == 201:
             return redirect("teachers")
@@ -226,7 +218,9 @@ def add_teacher(request):
         return render(
             request,
             "frontend/teacher_form.html",
-            {"error": response.json()},
+            {
+                "error": response.json(),
+            },
         )
 
     return render(request, "frontend/teacher_form.html")
@@ -269,6 +263,7 @@ def edit_teacher(request, teacher_id):
 
     return redirect("teachers")
 
+
 def delete_teacher(request, teacher_id):
     url = f"{BASE_API}/teachers/{teacher_id}/"
 
@@ -291,6 +286,155 @@ def delete_teacher(request, teacher_id):
 
     return redirect("teachers")
 
+
+# ==========================
+# COURSES
+# ==========================
+
+def courses(request):
+    search = request.GET.get("search", "")
+
+    response = requests.get(f"{BASE_API}/courses/")
+    courses = response.json()
+
+    if isinstance(courses, dict):
+        courses = courses.get("results", courses)
+
+    if search:
+        search = search.lower()
+
+        courses = [
+            course for course in courses
+            if (
+                search in course["course_name"].lower()
+                or search in course["course_code"].lower()
+                or search in course["teacher_name"].lower()
+            )
+        ]
+
+    return render(
+        request,
+        "frontend/courses.html",
+        {
+            "courses": courses,
+            "search": search,
+        },
+    )
+
+
+def add_course(request):
+    teachers = requests.get(f"{BASE_API}/teachers/").json()
+
+    if isinstance(teachers, dict):
+        teachers = teachers.get("results", teachers)
+
+    if request.method == "POST":
+        data = {
+            "course_name": request.POST.get("course_name"),
+            "course_code": request.POST.get("course_code"),
+            "teacher": request.POST.get("teacher"),
+        }
+
+        response = requests.post(
+            f"{BASE_API}/courses/",
+            json=data,
+        )
+
+        if response.status_code == 201:
+            return redirect("courses")
+
+        return render(
+            request,
+            "frontend/course_form.html",
+            {
+                "teachers": teachers,
+                "error": response.json(),
+            },
+        )
+
+    return render(
+        request,
+        "frontend/course_form.html",
+        {
+            "teachers": teachers,
+        },
+    )
+
+
+def edit_course(request, course_id):
+    url = f"{BASE_API}/courses/{course_id}/"
+
+    teachers = requests.get(f"{BASE_API}/teachers/").json()
+
+    if isinstance(teachers, dict):
+        teachers = teachers.get("results", teachers)
+
+    if request.method == "POST":
+        data = {
+            "course_name": request.POST.get("course_name"),
+            "course_code": request.POST.get("course_code"),
+            "teacher": request.POST.get("teacher"),
+        }
+
+        response = requests.put(url, json=data)
+
+        if response.status_code == 200:
+            return redirect("courses")
+
+        return render(
+            request,
+            "frontend/course_form.html",
+            {
+                "course": data,
+                "teachers": teachers,
+                "error": response.json(),
+            },
+        )
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        course = response.json()
+
+        return render(
+            request,
+            "frontend/course_form.html",
+            {
+                "course": course,
+                "teachers": teachers,
+            },
+        )
+
+    return redirect("courses")
+
+
+def delete_course(request, course_id):
+    url = f"{BASE_API}/courses/{course_id}/"
+
+    if request.method == "POST":
+        requests.delete(url)
+        return redirect("courses")
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        course = response.json()
+
+        return render(
+            request,
+            "frontend/course_delete.html",
+            {
+                "course": course,
+            },
+        )
+
+    return redirect("courses")
+
+
+# ==========================
+# ATTENDANCE
+# ==========================
+
 def attendance(request):
     search = request.GET.get("search", "")
 
@@ -302,10 +446,13 @@ def attendance(request):
 
     if search:
         search = search.lower()
+
         attendance = [
             record for record in attendance
-            if search in record["student"]["user"]["username"].lower()
-            or search in record["course"]["course_name"].lower()
+            if (
+                search in str(record.get("student", "")).lower()
+                or search in str(record.get("course", "")).lower()
+            )
         ]
 
     return render(
