@@ -1,11 +1,15 @@
 import requests
 from django.shortcuts import render
 
-API_URL = "http://127.0.0.1:8000/api/students/"
+BASE_API = "http://127.0.0.1:8000/api"
+
+
+def home(request):
+    return render(request, "frontend/home.html")
 
 
 def students(request):
-    response = requests.get(API_URL)
+    response = requests.get(f"{BASE_API}/students/")
 
     if response.status_code == 200:
         students = response.json()
