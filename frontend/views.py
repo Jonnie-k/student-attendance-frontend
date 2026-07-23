@@ -89,6 +89,48 @@ def add_student(request):
         request,
         "frontend/student_form.html",
     )
+def edit_student(request, student_id):
+    url = f"{BASE_API}/students/{student_id}/"
+
+    if request.method == "POST":
+        data = {
+            "username": request.POST.get("username"),
+            "first_name": request.POST.get("first_name"),
+            "last_name": request.POST.get("last_name"),
+            "admission_number": request.POST.get("admission_number"),
+            "phone_number": request.POST.get("phone_number"),
+            "gender": request.POST.get("gender"),
+        }
+
+        response = requests.put(url, json=data)
+
+        if response.status_code == 200:
+            return redirect("students")
+
+        return render(
+            request,
+            "frontend/student_form.html",
+            {
+                "student": data,
+                "error": response.json(),
+            },
+        )
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        student = response.json()
+
+        return render(
+            request,
+            "frontend/student_form.html",
+            {
+                "student": student,
+            },
+        )
+
+    return redirect("students")
+
 def teachers(request):
     search = request.GET.get("search", "")
 
