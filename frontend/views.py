@@ -362,14 +362,13 @@ def add_course(request):
         },
     )
 
-
 def edit_course(request, course_id):
-    url = f"{BASE_API}/courses/{course_id}/"
-
     teachers = requests.get(f"{BASE_API}/teachers/").json()
 
     if isinstance(teachers, dict):
         teachers = teachers.get("results", teachers)
+
+    url = f"{BASE_API}/courses/{course_id}/"
 
     if request.method == "POST":
         data = {
@@ -387,8 +386,8 @@ def edit_course(request, course_id):
             request,
             "frontend/course_form.html",
             {
-                "course": data,
                 "teachers": teachers,
+                "course": data,
                 "error": response.json(),
             },
         )
@@ -402,34 +401,15 @@ def edit_course(request, course_id):
             request,
             "frontend/course_form.html",
             {
-                "course": course,
                 "teachers": teachers,
+                "course": course,
             },
         )
 
     return redirect("courses")
 
-
 def delete_course(request, course_id):
-    url = f"{BASE_API}/courses/{course_id}/"
-
-    if request.method == "POST":
-        requests.delete(url)
-        return redirect("courses")
-
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        course = response.json()
-
-        return render(
-            request,
-            "frontend/course_delete.html",
-            {
-                "course": course,
-            },
-        )
-
+    requests.delete(f"{BASE_API}/courses/{course_id}/")
     return redirect("courses")
 
 

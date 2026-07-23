@@ -17,8 +17,18 @@ urlpatterns = [
     path("teachers/delete/<int:teacher_id>/", views.delete_teacher, name="delete_teacher"),
 
     # Courses
-    path("courses/", views.courses, name="courses"),
-
+  path("courses/", views.courses, name="courses"),
+path("courses/add/", views.add_course, name="add_course"),
+path(
+    "courses/edit/<int:course_id>/",
+    views.edit_course,
+    name="edit_course",
+),
+path(
+    "courses/delete/<int:course_id>/",
+    views.delete_course,
+    name="delete_course",
+),
     # Attendance
     path("attendance/", views.attendance, name="attendance"),
     path("courses/", views.courses, name="courses"),
