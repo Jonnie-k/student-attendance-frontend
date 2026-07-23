@@ -202,11 +202,12 @@ def teachers(request):
 def add_teacher(request):
     if request.method == "POST":
         data = {
-            "user": request.POST.get("user"),
-            "employee_number": request.POST.get("employee_number"),
-            "department": request.POST.get("department"),
-        }
-
+    "username": request.POST.get("username"),
+    "first_name": request.POST.get("first_name"),
+    "last_name": request.POST.get("last_name"),
+    "employee_number": request.POST.get("employee_number"),
+    "department": request.POST.get("department"),
+}
         response = requests.post(
             f"{BASE_API}/teachers/",
             json=data,
@@ -229,11 +230,12 @@ def edit_teacher(request, teacher_id):
 
     if request.method == "POST":
         data = {
-            "user": request.POST.get("user"),
-            "employee_number": request.POST.get("employee_number"),
-            "department": request.POST.get("department"),
-        }
-
+    "username": request.POST.get("username"),
+    "first_name": request.POST.get("first_name"),
+    "last_name": request.POST.get("last_name"),
+    "employee_number": request.POST.get("employee_number"),
+    "department": request.POST.get("department"),
+}
         response = requests.put(url, json=data)
 
         if response.status_code == 200:
