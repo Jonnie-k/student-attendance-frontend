@@ -1,19 +1,54 @@
 {% extends "frontend/base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
 
-<div class="text-center mt-5">
+<div class="text-center mb-5">
     <h1>Student Attendance Management System</h1>
-
-    <p class="lead">
-        Welcome to the Student Attendance Management System.
+    <p class="text-muted">
+        Manage students, teachers, courses and attendance.
     </p>
+</div>
 
-    <a href="/students/" class="btn btn-primary">
-        View Students
-    </a>
+<div class="row">
+
+<div class="col-md-3">
+<div class="card shadow-sm border-0 text-center">
+<div class="card-body">
+<h2>{{ student_count }}</h2>
+<p>Students</p>
+</div>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card shadow-sm border-0 text-center">
+<div class="card-body">
+<h2>{{ teacher_count }}</h2>
+<p>Teachers</p>
+</div>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card shadow-sm border-0 text-center">
+<div class="card-body">
+<h2>{{ course_count }}</h2>
+<p>Courses</p>
+</div>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card shadow-sm border-0 text-center">
+<div class="card-body">
+<h2>{{ attendance_count }}</h2>
+<p>Attendance Records</p>
+</div>
+</div>
+</div>
+
 </div>
 
 {% endblock %}

@@ -5,8 +5,31 @@ BASE_API = "http://127.0.0.1:8000/api"
 
 
 def home(request):
-    return render(request, "frontend/home.html")
+    students = requests.get(f"{BASE_API}/students/").json()
+    teachers = requests.get(f"{BASE_API}/teachers/").json()
+    courses = requests.get(f"{BASE_API}/courses/").json()
+    attendance = requests.get(f"{BASE_API}/attendance/").json()
 
+    if isinstance(students, dict):
+        students = students.get("results", students)
+
+    if isinstance(teachers, dict):
+        teachers = teachers.get("results", teachers)
+
+    if isinstance(courses, dict):
+        courses = courses.get("results", courses)
+
+    if isinstance(attendance, dict):
+        attendance = attendance.get("results", attendance)
+
+    context = {
+        "student_count": len(students),
+        "teacher_count": len(teachers),
+        "course_count": len(courses),
+        "attendance_count": len(attendance),
+    }
+
+    return render(request, "frontend/home.html", context)
 
 def students(request):
     response = requests.get(f"{BASE_API}/students/")
