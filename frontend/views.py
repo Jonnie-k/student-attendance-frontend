@@ -1,8 +1,7 @@
 import requests
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 BASE_API = "http://127.0.0.1:8000/api"
-
 
 def home(request):
     students = requests.get(f"{BASE_API}/students/").json()
@@ -59,7 +58,37 @@ def students(request):
             "search": search,
         },
     )
+def add_student(request):
+    if request.method == "POST":
+        data = {
+            "username": request.POST.get("username"),
+            "first_name": request.POST.get("first_name"),
+            "last_name": request.POST.get("last_name"),
+            "admission_number": request.POST.get("admission_number"),
+            "phone_number": request.POST.get("phone_number"),
+            "gender": request.POST.get("gender"),
+        }
 
+        response = requests.post(
+            f"{BASE_API}/students/",
+            json=data
+        )
+
+        if response.status_code == 201:
+            return redirect("students")
+
+        return render(
+            request,
+            "frontend/student_form.html",
+            {
+                "error": response.json()
+            },
+        )
+
+    return render(
+        request,
+        "frontend/student_form.html",
+    )
 def teachers(request):
     search = request.GET.get("search", "")
 
