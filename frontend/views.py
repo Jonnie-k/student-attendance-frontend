@@ -430,12 +430,14 @@ def attendance(request):
         search = search.lower()
 
         attendance = [
-            record for record in attendance
-            if (
-                search in str(record.get("student", "")).lower()
-                or search in str(record.get("course", "")).lower()
-            )
-        ]
+    record for record in attendance
+    if (
+        search in record.get("student_name", "").lower()
+        or search in record.get("course_name", "").lower()
+        or search in record.get("status", "").lower()
+        or search in record.get("date", "").lower()
+    )
+]
 
     return render(
         request,
@@ -445,3 +447,125 @@ def attendance(request):
             "search": search,
         },
     )
+
+def add_attendance(request):
+    students = requests.get(f"{BASE_API}/students/").json()
+    courses = requests.get(f"{BASE_API}/courses/").json()
+
+    if isinstance(students, dict):
+        students = students.get("results", students)
+
+    if isinstance(courses, dict):
+        courses = courses.get("results", courses)
+
+    if request.method == "POST":
+        data = {
+            "student": request.POST.get("student"),
+            "course": request.POST.get("course"),
+            "date": request.POST.get("date"),
+            "status": request.POST.get("status"),
+        }
+
+        response = requests.post(
+            f"{BASE_API}/attendance/",
+            json=data,
+        )
+
+        if response.status_code == 201:
+            return redirect("attendance")
+
+        return render(
+            request,
+            "frontend/attendance_form.html",
+            {
+                "students": students,
+                "courses": courses,
+                "error": response.json(),
+            },
+        )
+
+    return render(
+        request,
+        "frontend/attendance_form.html",
+        {
+            "students": students,
+            "courses": courses,
+        },
+    )
+
+
+def edit_attendance(request, attendance_id):
+    students = requests.get(f"{BASE_API}/students/").json()
+    courses = requests.get(f"{BASE_API}/courses/").json()
+
+    if isinstance(students, dict):
+        students = students.get("results", students)
+
+    if isinstance(courses, dict):
+        courses = courses.get("results", courses)
+
+    url = f"{BASE_API}/attendance/{attendance_id}/"
+
+    if request.method == "POST":
+        data = {
+            "student": request.POST.get("student"),
+            "course": request.POST.get("course"),
+            "date": request.POST.get("date"),
+            "status": request.POST.get("status"),
+        }
+
+        response = requests.put(url, json=data)
+
+        if response.status_code == 200:
+            return redirect("attendance")
+
+        return render(
+            request,
+            "frontend/attendance_form.html",
+            {
+                "attendance": data,
+                "students": students,
+                "courses": courses,
+                "error": response.json(),
+            },
+        )
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        attendance = response.json()
+
+        return render(
+            request,
+            "frontend/attendance_form.html",
+            {
+                "attendance": attendance,
+                "students": students,
+                "courses": courses,
+            },
+        )
+
+    return redirect("attendance")
+
+
+def delete_attendance(request, attendance_id):
+    url = f"{BASE_API}/attendance/{attendance_id}/"
+
+    if request.method == "POST":
+        requests.delete(url)
+        return redirect("attendance")
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        attendance = response.json()
+
+        return render(
+            request,
+            "frontend/attendance_delete.html",
+            {
+                "attendance": attendance,
+            },
+        )
+
+    return redirect("attendance")

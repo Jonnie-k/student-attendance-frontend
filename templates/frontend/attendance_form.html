@@ -1,0 +1,77 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}
+{% if attendance %}Edit Attendance{% else %}Add Attendance{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">
+    {% if attendance %}Edit Attendance{% else %}Add Attendance{% endif %}
+</h2>
+
+{% if error %}
+<div class="alert alert-danger">
+    {{ error }}
+</div>
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label class="form-label">Student</label>
+
+        <select name="student" class="form-select">
+            {% for student in students %}
+            <option value="{{ student.id }}" {% if attendance.student == student.id %}selected{% endif %}>
+                {{ student.full_name|default:student.username }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Course</label>
+
+        <select name="course" class="form-select">
+            {% for course in courses %}
+            <option value="{{ course.id }}">
+                {{ course.course_name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Date</label>
+
+        <input
+            type="date"
+            name="date"
+            class="form-control"
+            value="{{ attendance.date|default:'' }}"
+        >
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Status</label>
+
+        <select name="status" class="form-select">
+            <option value="Present">Present</option>
+            <option value="Absent">Absent</option>
+            <option value="Late">Late</option>
+        </select>
+    </div>
+
+    <button class="btn btn-success">
+        Save Attendance
+    </button>
+
+    <a href="{% url 'attendance' %}" class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}

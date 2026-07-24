@@ -30,9 +30,16 @@ path(
     name="delete_course",
 ),
     # Attendance
-    path("attendance/", views.attendance, name="attendance"),
-    path("courses/", views.courses, name="courses"),
-    path("courses/add/", views.add_course, name="add_course"),
-    path("courses/edit/<int:course_id>/", views.edit_course, name="edit_course"),
-    path("courses/delete/<int:course_id>/", views.delete_course, name="delete_course"),
+  path("attendance/", views.attendance, name="attendance"),
+path("attendance/add/", views.add_attendance, name="add_attendance"),
+path(
+    "attendance/edit/<int:attendance_id>/",
+    views.edit_attendance,
+    name="edit_attendance",
+),
+path(
+    "attendance/delete/<int:attendance_id>/",
+    views.delete_attendance,
+    name="delete_attendance",
+),
     ]
