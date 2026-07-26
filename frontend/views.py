@@ -1,6 +1,7 @@
 import requests
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 BASE_API = "http://127.0.0.1:8000/api"
 
@@ -54,9 +55,9 @@ def students(request):
         students = [
             student for student in students
             if (
-                search in student["username"].lower()
-                or search in student["full_name"].lower()
-                or search in student["admission_number"].lower()
+                search in student.get("username", "").lower()
+                or search in student.get("full_name", "").lower()
+                or search in student.get("admission_number", "").lower()
             )
         ]
 
@@ -68,6 +69,7 @@ def students(request):
             "search": search,
         },
     )
+
 
 @login_required
 def add_student(request):
@@ -87,6 +89,7 @@ def add_student(request):
         )
 
         if response.status_code == 201:
+            messages.success(request, "Student added successfully.")
             return redirect("students")
 
         return render(
@@ -117,6 +120,7 @@ def edit_student(request, student_id):
         response = requests.put(url, json=data)
 
         if response.status_code == 200:
+            messages.success(request, "Student updated successfully.")
             return redirect("students")
 
         return render(
@@ -141,6 +145,7 @@ def edit_student(request, student_id):
             },
         )
 
+    messages.error(request, "Student not found.")
     return redirect("students")
 
 
@@ -150,6 +155,7 @@ def delete_student(request, student_id):
 
     if request.method == "POST":
         requests.delete(url)
+        messages.success(request, "Student deleted successfully.")
         return redirect("students")
 
     response = requests.get(url)
@@ -165,6 +171,7 @@ def delete_student(request, student_id):
             },
         )
 
+    messages.error(request, "Student not found.")
     return redirect("students")
 
 
@@ -188,10 +195,10 @@ def teachers(request):
         teachers = [
             teacher for teacher in teachers
             if (
-                search in teacher["username"].lower()
-                or search in teacher["full_name"].lower()
-                or search in teacher["employee_number"].lower()
-                or search in teacher["department"].lower()
+                search in teacher.get("username", "").lower()
+                or search in teacher.get("full_name", "").lower()
+                or search in teacher.get("employee_number", "").lower()
+                or search in teacher.get("department", "").lower()
             )
         ]
 
@@ -209,18 +216,19 @@ def teachers(request):
 def add_teacher(request):
     if request.method == "POST":
         data = {
-    "username": request.POST.get("username"),
-    "first_name": request.POST.get("first_name"),
-    "last_name": request.POST.get("last_name"),
-    "employee_number": request.POST.get("employee_number"),
-    "department": request.POST.get("department"),
-}
+            "username": request.POST.get("username"),
+            "first_name": request.POST.get("first_name"),
+            "last_name": request.POST.get("last_name"),
+            "employee_number": request.POST.get("employee_number"),
+            "department": request.POST.get("department"),
+        }
         response = requests.post(
             f"{BASE_API}/teachers/",
             json=data,
         )
 
         if response.status_code == 201:
+            messages.success(request, "Teacher added successfully.")
             return redirect("teachers")
 
         return render(
@@ -233,21 +241,23 @@ def add_teacher(request):
 
     return render(request, "frontend/teacher_form.html")
 
+
 @login_required
 def edit_teacher(request, teacher_id):
     url = f"{BASE_API}/teachers/{teacher_id}/"
 
     if request.method == "POST":
         data = {
-    "username": request.POST.get("username"),
-    "first_name": request.POST.get("first_name"),
-    "last_name": request.POST.get("last_name"),
-    "employee_number": request.POST.get("employee_number"),
-    "department": request.POST.get("department"),
-}
+            "username": request.POST.get("username"),
+            "first_name": request.POST.get("first_name"),
+            "last_name": request.POST.get("last_name"),
+            "employee_number": request.POST.get("employee_number"),
+            "department": request.POST.get("department"),
+        }
         response = requests.put(url, json=data)
 
         if response.status_code == 200:
+            messages.success(request, "Teacher updated successfully.")
             return redirect("teachers")
 
         return render(
@@ -272,6 +282,7 @@ def edit_teacher(request, teacher_id):
             },
         )
 
+    messages.error(request, "Teacher not found.")
     return redirect("teachers")
 
 
@@ -281,6 +292,7 @@ def delete_teacher(request, teacher_id):
 
     if request.method == "POST":
         requests.delete(url)
+        messages.success(request, "Teacher deleted successfully.")
         return redirect("teachers")
 
     response = requests.get(url)
@@ -296,6 +308,7 @@ def delete_teacher(request, teacher_id):
             },
         )
 
+    messages.error(request, "Teacher not found.")
     return redirect("teachers")
 
 
@@ -319,12 +332,11 @@ def courses(request):
         courses = [
             course for course in courses
             if (
-                search in course["course_name"].lower()
-                or search in course["course_code"].lower()
-                or search in course["teacher_name"].lower()
+                search in course.get("course_name", "").lower()
+                or search in course.get("course_code", "").lower()
+                or search in course.get("teacher_name", "").lower()
             )
         ]
-
     return render(
         request,
         "frontend/courses.html",
@@ -333,6 +345,7 @@ def courses(request):
             "search": search,
         },
     )
+
 
 @login_required
 def add_course(request):
@@ -354,6 +367,7 @@ def add_course(request):
         )
 
         if response.status_code == 201:
+            messages.success(request, "Course added successfully.")
             return redirect("courses")
 
         return render(
@@ -372,6 +386,7 @@ def add_course(request):
             "teachers": teachers,
         },
     )
+
 
 @login_required
 def edit_course(request, course_id):
@@ -392,6 +407,7 @@ def edit_course(request, course_id):
         response = requests.put(url, json=data)
 
         if response.status_code == 200:
+            messages.success(request, "Course updated successfully.")
             return redirect("courses")
 
         return render(
@@ -418,11 +434,33 @@ def edit_course(request, course_id):
             },
         )
 
+    messages.error(request, "Course not found.")
     return redirect("courses")
+
 
 @login_required
 def delete_course(request, course_id):
-    requests.delete(f"{BASE_API}/courses/{course_id}/")
+    url = f"{BASE_API}/courses/{course_id}/"
+
+    if request.method == "POST":
+        requests.delete(url)
+        messages.success(request, "Course deleted successfully.")
+        return redirect("courses")
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        course = response.json()
+
+        return render(
+            request,
+            "frontend/course_delete.html",
+            {
+                "course": course,
+            },
+        )
+
+    messages.error(request, "Course not found.")
     return redirect("courses")
 
 
@@ -444,14 +482,14 @@ def attendance(request):
         search = search.lower()
 
         attendance = [
-    record for record in attendance
-    if (
-        search in record.get("student_name", "").lower()
-        or search in record.get("course_name", "").lower()
-        or search in record.get("status", "").lower()
-        or search in record.get("date", "").lower()
-    )
-]
+            record for record in attendance
+            if (
+                search in record.get("student_name", "").lower()
+                or search in record.get("course_name", "").lower()
+                or search in record.get("status", "").lower()
+                or search in record.get("date", "").lower()
+            )
+        ]
 
     return render(
         request,
@@ -461,6 +499,7 @@ def attendance(request):
             "search": search,
         },
     )
+
 
 @login_required
 def add_attendance(request):
@@ -487,6 +526,7 @@ def add_attendance(request):
         )
 
         if response.status_code == 201:
+            messages.success(request, "Attendance record added successfully.")
             return redirect("attendance")
 
         return render(
@@ -533,6 +573,7 @@ def edit_attendance(request, attendance_id):
         response = requests.put(url, json=data)
 
         if response.status_code == 200:
+            messages.success(request, "Attendance record updated successfully.")
             return redirect("attendance")
 
         return render(
@@ -561,7 +602,9 @@ def edit_attendance(request, attendance_id):
             },
         )
 
+    messages.error(request, "Attendance record not found.")
     return redirect("attendance")
+
 
 @login_required
 def delete_attendance(request, attendance_id):
@@ -569,6 +612,7 @@ def delete_attendance(request, attendance_id):
 
     if request.method == "POST":
         requests.delete(url)
+        messages.success(request, "Attendance record deleted successfully.")
         return redirect("attendance")
 
     response = requests.get(url)
@@ -584,10 +628,11 @@ def delete_attendance(request, attendance_id):
             },
         )
 
+    messages.error(request, "Attendance record not found.")
     return redirect("attendance")
 
-from datetime import datetime
 
+@login_required
 def reports(request):
     response = requests.get(f"{BASE_API}/attendance/")
     attendance = response.json()
@@ -605,42 +650,42 @@ def reports(request):
     if student:
         attendance = [
             record for record in attendance
-            if student.lower() in record["student_name"].lower()
+            if student.lower() in record.get("student_name", "").lower()
         ]
 
     if course:
         attendance = [
             record for record in attendance
-            if course.lower() in record["course_name"].lower()
+            if course.lower() in record.get("course_name", "").lower()
         ]
 
     if status:
         attendance = [
             record for record in attendance
-            if record["status"] == status
+            if record.get("status") == status
         ]
 
     if date:
         attendance = [
             record for record in attendance
-            if record["date"] == date
+            if record.get("date") == date
         ]
 
     total_records = len(attendance)
 
     present_count = sum(
         1 for record in attendance
-        if record["status"] == "Present"
+        if record.get("status") == "Present"
     )
 
     absent_count = sum(
         1 for record in attendance
-        if record["status"] == "Absent"
+        if record.get("status") == "Absent"
     )
 
     late_count = sum(
         1 for record in attendance
-        if record["status"] == "Late"
+        if record.get("status") == "Late"
     )
 
     attendance_percentage = (
