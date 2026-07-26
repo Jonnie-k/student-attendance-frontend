@@ -42,4 +42,7 @@ path(
     views.delete_attendance,
     name="delete_attendance",
 ),
-    ]
+
+#reports
+path("reports/", views.reports, name="reports"),
+]

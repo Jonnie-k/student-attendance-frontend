@@ -585,3 +585,85 @@ def delete_attendance(request, attendance_id):
         )
 
     return redirect("attendance")
+
+from datetime import datetime
+
+def reports(request):
+    response = requests.get(f"{BASE_API}/attendance/")
+    attendance = response.json()
+
+    if isinstance(attendance, dict):
+        attendance = attendance.get("results", attendance)
+
+    # Get filter values
+    student = request.GET.get("student", "")
+    course = request.GET.get("course", "")
+    status = request.GET.get("status", "")
+    date = request.GET.get("date", "")
+
+    # Apply filters
+    if student:
+        attendance = [
+            record for record in attendance
+            if student.lower() in record["student_name"].lower()
+        ]
+
+    if course:
+        attendance = [
+            record for record in attendance
+            if course.lower() in record["course_name"].lower()
+        ]
+
+    if status:
+        attendance = [
+            record for record in attendance
+            if record["status"] == status
+        ]
+
+    if date:
+        attendance = [
+            record for record in attendance
+            if record["date"] == date
+        ]
+
+    total_records = len(attendance)
+
+    present_count = sum(
+        1 for record in attendance
+        if record["status"] == "Present"
+    )
+
+    absent_count = sum(
+        1 for record in attendance
+        if record["status"] == "Absent"
+    )
+
+    late_count = sum(
+        1 for record in attendance
+        if record["status"] == "Late"
+    )
+
+    attendance_percentage = (
+        (present_count / total_records) * 100
+        if total_records else 0
+    )
+
+    context = {
+        "attendance": attendance,
+        "total_records": total_records,
+        "present_count": present_count,
+        "absent_count": absent_count,
+        "late_count": late_count,
+        "attendance_percentage": round(attendance_percentage, 1),
+
+        "student": student,
+        "course": course,
+        "status": status,
+        "date": date,
+    }
+
+    return render(
+        request,
+        "frontend/reports.html",
+        context,
+    )
