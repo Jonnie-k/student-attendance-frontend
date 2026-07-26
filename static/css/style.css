@@ -41,3 +41,21 @@ footer{
     text-align:center;
     color:gray;
 }
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+}
+
+.card h1 {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.card h5 {
+    font-weight: 600;
+}
