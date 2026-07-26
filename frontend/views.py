@@ -45,6 +45,8 @@ def students(request):
 
     response = requests.get(f"{BASE_API}/students/")
     students = response.json()
+    print("STATUS:", response.status_code)
+    print("DATA:" , students)
 
     if isinstance(students, dict):
         students = students.get("results", students)
