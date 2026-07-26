@@ -1,9 +1,11 @@
 import requests
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 
 BASE_API = "http://127.0.0.1:8000/api"
 
 
+@login_required
 def home(request):
     students = requests.get(f"{BASE_API}/students/").json()
     teachers = requests.get(f"{BASE_API}/teachers/").json()
@@ -36,6 +38,7 @@ def home(request):
 # STUDENTS
 # ==========================
 
+@login_required
 def students(request):
     search = request.GET.get("search", "")
 
@@ -66,7 +69,7 @@ def students(request):
         },
     )
 
-
+@login_required
 def add_student(request):
     if request.method == "POST":
         data = {
@@ -97,6 +100,7 @@ def add_student(request):
     return render(request, "frontend/student_form.html")
 
 
+@login_required
 def edit_student(request, student_id):
     url = f"{BASE_API}/students/{student_id}/"
 
@@ -140,6 +144,7 @@ def edit_student(request, student_id):
     return redirect("students")
 
 
+@login_required
 def delete_student(request, student_id):
     url = f"{BASE_API}/students/{student_id}/"
 
@@ -167,6 +172,7 @@ def delete_student(request, student_id):
 # TEACHERS
 # ==========================
 
+@login_required
 def teachers(request):
     search = request.GET.get("search", "")
 
@@ -199,6 +205,7 @@ def teachers(request):
     )
 
 
+@login_required
 def add_teacher(request):
     if request.method == "POST":
         data = {
@@ -225,6 +232,8 @@ def add_teacher(request):
         )
 
     return render(request, "frontend/teacher_form.html")
+
+@login_required
 def edit_teacher(request, teacher_id):
     url = f"{BASE_API}/teachers/{teacher_id}/"
 
@@ -266,6 +275,7 @@ def edit_teacher(request, teacher_id):
     return redirect("teachers")
 
 
+@login_required
 def delete_teacher(request, teacher_id):
     url = f"{BASE_API}/teachers/{teacher_id}/"
 
@@ -293,6 +303,7 @@ def delete_teacher(request, teacher_id):
 # COURSES
 # ==========================
 
+@login_required
 def courses(request):
     search = request.GET.get("search", "")
 
@@ -323,7 +334,7 @@ def courses(request):
         },
     )
 
-
+@login_required
 def add_course(request):
     teachers = requests.get(f"{BASE_API}/teachers/").json()
 
@@ -362,6 +373,7 @@ def add_course(request):
         },
     )
 
+@login_required
 def edit_course(request, course_id):
     teachers = requests.get(f"{BASE_API}/teachers/").json()
 
@@ -408,6 +420,7 @@ def edit_course(request, course_id):
 
     return redirect("courses")
 
+@login_required
 def delete_course(request, course_id):
     requests.delete(f"{BASE_API}/courses/{course_id}/")
     return redirect("courses")
@@ -417,6 +430,7 @@ def delete_course(request, course_id):
 # ATTENDANCE
 # ==========================
 
+@login_required
 def attendance(request):
     search = request.GET.get("search", "")
 
@@ -448,6 +462,7 @@ def attendance(request):
         },
     )
 
+@login_required
 def add_attendance(request):
     students = requests.get(f"{BASE_API}/students/").json()
     courses = requests.get(f"{BASE_API}/courses/").json()
@@ -494,6 +509,7 @@ def add_attendance(request):
     )
 
 
+@login_required
 def edit_attendance(request, attendance_id):
     students = requests.get(f"{BASE_API}/students/").json()
     courses = requests.get(f"{BASE_API}/courses/").json()
@@ -547,7 +563,7 @@ def edit_attendance(request, attendance_id):
 
     return redirect("attendance")
 
-
+@login_required
 def delete_attendance(request, attendance_id):
     url = f"{BASE_API}/attendance/{attendance_id}/"
 
