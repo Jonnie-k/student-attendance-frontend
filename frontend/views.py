@@ -6,24 +6,23 @@ from django.contrib import messages
 BASE_API = "https://student-attendance-backend-h3hr.onrender.com/api"
 
 
+def fetch_all(url):
+    results = []
+    while url:
+        data = requests.get(url).json()
+        if isinstance(data, list):
+            return data
+        results.extend(data.get("results", []))
+        url = data.get("next")
+    return results
+
+
 @login_required
 def home(request):
-    students = requests.get(f"{BASE_API}/students/").json()
-    teachers = requests.get(f"{BASE_API}/teachers/").json()
-    courses = requests.get(f"{BASE_API}/courses/").json()
-    attendance = requests.get(f"{BASE_API}/attendance/").json()
-
-    if isinstance(students, dict):
-        students = students.get("results", students)
-
-    if isinstance(teachers, dict):
-        teachers = teachers.get("results", teachers)
-
-    if isinstance(courses, dict):
-        courses = courses.get("results", courses)
-
-    if isinstance(attendance, dict):
-        attendance = attendance.get("results", attendance)
+    students = fetch_all(f"{BASE_API}/students/")
+    teachers = fetch_all(f"{BASE_API}/teachers/")
+    courses = fetch_all(f"{BASE_API}/courses/")
+    attendance = fetch_all(f"{BASE_API}/attendance/")
 
     context = {
         "student_count": len(students),
@@ -42,35 +41,20 @@ def home(request):
 @login_required
 def students(request):
     search = request.GET.get("search", "")
-
-    response = requests.get(f"{BASE_API}/students/")
-    students = response.json()
-    print("STATUS:", response.status_code)
-    print("DATA:" , students)
-
-    if isinstance(students, dict):
-        students = students.get("results", students)
+    students = fetch_all(f"{BASE_API}/students/")
 
     if search:
         search = search.lower()
-
         students = [
-            student for student in students
+            s for s in students
             if (
-                search in student.get("username", "").lower()
-                or search in student.get("full_name", "").lower()
-                or search in student.get("admission_number", "").lower()
+                search in s.get("username", "").lower()
+                or search in s.get("full_name", "").lower()
+                or search in s.get("admission_number", "").lower()
             )
         ]
 
-    return render(
-        request,
-        "frontend/students.html",
-        {
-            "students": students,
-            "search": search,
-        },
-    )
+    return render(request, "frontend/students.html", {"students": students, "search": search})
 
 
 @login_required
@@ -184,34 +168,21 @@ def delete_student(request, student_id):
 @login_required
 def teachers(request):
     search = request.GET.get("search", "")
-
-    response = requests.get(f"{BASE_API}/teachers/")
-    teachers = response.json()
-
-    if isinstance(teachers, dict):
-        teachers = teachers.get("results", teachers)
+    teachers = fetch_all(f"{BASE_API}/teachers/")
 
     if search:
         search = search.lower()
-
         teachers = [
-            teacher for teacher in teachers
+            t for t in teachers
             if (
-                search in teacher.get("username", "").lower()
-                or search in teacher.get("full_name", "").lower()
-                or search in teacher.get("employee_number", "").lower()
-                or search in teacher.get("department", "").lower()
+                search in t.get("username", "").lower()
+                or search in t.get("full_name", "").lower()
+                or search in t.get("employee_number", "").lower()
+                or search in t.get("department", "").lower()
             )
         ]
 
-    return render(
-        request,
-        "frontend/teachers.html",
-        {
-            "teachers": teachers,
-            "search": search,
-        },
-    )
+    return render(request, "frontend/teachers.html", {"teachers": teachers, "search": search})
 
 
 @login_required
@@ -321,40 +292,25 @@ def delete_teacher(request, teacher_id):
 @login_required
 def courses(request):
     search = request.GET.get("search", "")
-
-    response = requests.get(f"{BASE_API}/courses/")
-    courses = response.json()
-
-    if isinstance(courses, dict):
-        courses = courses.get("results", courses)
+    courses = fetch_all(f"{BASE_API}/courses/")
 
     if search:
         search = search.lower()
-
         courses = [
-            course for course in courses
+            c for c in courses
             if (
-                search in course.get("course_name", "").lower()
-                or search in course.get("course_code", "").lower()
-                or search in course.get("teacher_name", "").lower()
+                search in c.get("course_name", "").lower()
+                or search in c.get("course_code", "").lower()
+                or search in c.get("teacher_name", "").lower()
             )
         ]
-    return render(
-        request,
-        "frontend/courses.html",
-        {
-            "courses": courses,
-            "search": search,
-        },
-    )
+
+    return render(request, "frontend/courses.html", {"courses": courses, "search": search})
 
 
 @login_required
 def add_course(request):
-    teachers = requests.get(f"{BASE_API}/teachers/").json()
-
-    if isinstance(teachers, dict):
-        teachers = teachers.get("results", teachers)
+    teachers = fetch_all(f"{BASE_API}/teachers/")
 
     if request.method == "POST":
         data = {
@@ -392,10 +348,7 @@ def add_course(request):
 
 @login_required
 def edit_course(request, course_id):
-    teachers = requests.get(f"{BASE_API}/teachers/").json()
-
-    if isinstance(teachers, dict):
-        teachers = teachers.get("results", teachers)
+    teachers = fetch_all(f"{BASE_API}/teachers/")
 
     url = f"{BASE_API}/courses/{course_id}/"
 
@@ -453,14 +406,7 @@ def delete_course(request, course_id):
 
     if response.status_code == 200:
         course = response.json()
-
-        return render(
-            request,
-            "frontend/course_delete.html",
-            {
-                "course": course,
-            },
-        )
+        return render(request, "frontend/course_delete.html", {"course": course})
 
     messages.error(request, "Course not found.")
     return redirect("courses")
@@ -473,46 +419,27 @@ def delete_course(request, course_id):
 @login_required
 def attendance(request):
     search = request.GET.get("search", "")
-
-    response = requests.get(f"{BASE_API}/attendance/")
-    attendance = response.json()
-
-    if isinstance(attendance, dict):
-        attendance = attendance.get("results", attendance)
+    attendance = fetch_all(f"{BASE_API}/attendance/")
 
     if search:
         search = search.lower()
-
         attendance = [
-            record for record in attendance
+            r for r in attendance
             if (
-                search in record.get("student_name", "").lower()
-                or search in record.get("course_name", "").lower()
-                or search in record.get("status", "").lower()
-                or search in record.get("date", "").lower()
+                search in r.get("student_name", "").lower()
+                or search in r.get("course_name", "").lower()
+                or search in r.get("status", "").lower()
+                or search in r.get("date", "").lower()
             )
         ]
 
-    return render(
-        request,
-        "frontend/attendance.html",
-        {
-            "attendance": attendance,
-            "search": search,
-        },
-    )
+    return render(request, "frontend/attendance.html", {"attendance": attendance, "search": search})
 
 
 @login_required
 def add_attendance(request):
-    students = requests.get(f"{BASE_API}/students/").json()
-    courses = requests.get(f"{BASE_API}/courses/").json()
-
-    if isinstance(students, dict):
-        students = students.get("results", students)
-
-    if isinstance(courses, dict):
-        courses = courses.get("results", courses)
+    students = fetch_all(f"{BASE_API}/students/")
+    courses = fetch_all(f"{BASE_API}/courses/")
 
     if request.method == "POST":
         data = {
@@ -553,14 +480,8 @@ def add_attendance(request):
 
 @login_required
 def edit_attendance(request, attendance_id):
-    students = requests.get(f"{BASE_API}/students/").json()
-    courses = requests.get(f"{BASE_API}/courses/").json()
-
-    if isinstance(students, dict):
-        students = students.get("results", students)
-
-    if isinstance(courses, dict):
-        courses = courses.get("results", courses)
+    students = fetch_all(f"{BASE_API}/students/")
+    courses = fetch_all(f"{BASE_API}/courses/")
 
     url = f"{BASE_API}/attendance/{attendance_id}/"
 
@@ -636,11 +557,7 @@ def delete_attendance(request, attendance_id):
 
 @login_required
 def reports(request):
-    response = requests.get(f"{BASE_API}/attendance/")
-    attendance = response.json()
-
-    if isinstance(attendance, dict):
-        attendance = attendance.get("results", attendance)
+    attendance = fetch_all(f"{BASE_API}/attendance/")
 
     # Get filter values
     student = request.GET.get("student", "")

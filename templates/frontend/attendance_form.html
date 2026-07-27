@@ -64,7 +64,7 @@
 
                                         <option
                                             value="{{ student.id }}"
-                                            {% if attendance.student == student.id %}selected{% endif %}
+                                            {% if attendance.student|stringformat:"s" == student.id|stringformat:"s" %}selected{% endif %}
                                         >
                                             {{ student.full_name|default:student.username }}
                                         </option>
@@ -96,7 +96,7 @@
 
                                         <option
                                             value="{{ course.id }}"
-                                            {% if attendance.course == course.id %}selected{% endif %}
+                                            {% if attendance.course|stringformat:"s" == course.id|stringformat:"s" %}selected{% endif %}
                                         >
                                             {{ course.course_name }}
                                         </option>

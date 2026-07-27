@@ -102,7 +102,7 @@
 
                                     <option
                                         value="{{ teacher.id }}"
-                                        {% if course.teacher == teacher.id %}selected{% endif %}
+                                        {% if course.teacher|stringformat:"s" == teacher.id|stringformat:"s" %}selected{% endif %}
                                     >
                                         {{ teacher.full_name|default:teacher.username }}
                                     </option>
