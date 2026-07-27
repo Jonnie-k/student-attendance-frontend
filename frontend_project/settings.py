@@ -20,15 +20,14 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
-    ".fly.dev",
+   "student-attendance-frontend-mupu.onrender.com",
     "localhost",
     "127.0.0.1",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://*.fly.dev",
+   "https://student-attendance-frontend-mupu.onrender.com",
 ]
-
 # Applications
 
 INSTALLED_APPS = [
