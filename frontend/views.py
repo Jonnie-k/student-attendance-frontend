@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-BASE_API = "http://127.0.0.1:8000/api"
+BASE_API = "https://student-attendance-backend-h3hr.onrender.com/api"
 
 
 @login_required
